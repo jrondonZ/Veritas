@@ -1,0 +1,25 @@
+# Ground truth for the binary rules over the native samples (veritas.charter.yaml). Every candidate must be listed
+# under `expected`, every listed item must be found, and nothing may be reported for a hardened twin. Header and
+# import findings concern the whole file, so they have no function.
+version: 1
+expected:
+  - { id: E1, rule: binary-no-aslr, file: dist/weak-elf, function: null }
+  - { id: E2, rule: binary-no-dep, file: dist/weak-elf, function: null }
+  - { id: E3, rule: binary-wx-memory, file: dist/weak-elf, function: null }
+  - { id: E4, rule: insecure-rpath, file: dist/weak-elf, function: null }
+  - { id: E5, rule: dangerous-function, file: dist/weak-elf, function: null }
+  - { id: E6, rule: banned-api, file: dist/weak-elf, function: null }
+  - { id: E7, rule: hardcoded-secret, file: dist/weak-elf, function: null }
+  - { id: W1, rule: binary-no-aslr, file: dist/weak.exe, function: null }
+  - { id: W2, rule: binary-no-dep, file: dist/weak.exe, function: null }
+  - { id: W3, rule: binary-wx-memory, file: dist/weak.exe, function: null }
+  - { id: W4, rule: dangerous-function, file: dist/weak.exe, function: null }
+  - { id: W5, rule: banned-api, file: dist/weak.exe, function: null }
+  - { id: M1, rule: binary-no-aslr, file: dist/weak-macho, function: null }
+  - { id: M2, rule: binary-no-dep, file: dist/weak-macho, function: null }
+  - { id: M3, rule: dangerous-function, file: dist/weak-macho, function: null }
+  - { id: M4, rule: banned-api, file: dist/weak-macho, function: null }
+never:
+  - { id: hardened-elf, file: dist/hardened-elf, function: null }
+  - { id: hardened-exe, file: dist/hardened.exe, function: null }
+  - { id: hardened-macho, file: dist/hardened-macho, function: null }

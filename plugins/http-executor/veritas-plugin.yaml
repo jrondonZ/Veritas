@@ -1,0 +1,18 @@
+apiVersion: veritas/plugin/v1alpha1
+id: veritas.http-executor
+version: 0.0.1
+kind: executor
+runtime:
+  image: veritas/http-executor:0.0.1   # built locally; ID recorded in .veritas/veritas.lock
+  command: []
+protocol: vpp/1
+operations:
+  - name: execute
+    impact: sensitive   # a ceiling; every script's token carries its own, usually lower, ceiling
+    output: [exchange-refs]
+capabilities:
+  network: target-scope
+  identities: declared
+  filesystem: { work: tmpfs, inputs: none }
+resources: { cpu: "0.5", memory: 128Mi, pids: 32, timeout: 300s, output_max: 4Mi }
+determinism: deterministic

@@ -1,0 +1,20 @@
+# Analysis charter for the bundled lexfmt lab. Relative paths resolve against this file's directory.
+apiVersion: veritas/v1alpha1
+kind: AnalysisCharter
+metadata:
+  name: lexfmt-interop
+basis: owned
+reference: { file: README.md }   # contents are hashed into the charter digest
+purpose: >
+  Specify the .lex container format from the shipped reader, then reimplement a compatible
+  reader clean-room and verify it against the operator-owned conformance vectors.
+subjects:
+  - path: dist/lexfmt.js
+    sha256: dc72a73c3d78b1fa5d784f13b7a0f556427456f484e397e103454ca47486f81d
+conformance:
+  vectors: conformance.json      # each sample it names is hashed into the digest
+deliverables: [behavior-spec, clean-room-plan, implementation]
+constraints:
+  execute_subject: false         # static only until the detonate tier exists (Phase 4)
+  network: none
+  models: on                     # local only; nothing dirty ever reaches a clean-room context

@@ -1,0 +1,44 @@
+# Ground truth for the behavior spec of dist/lexfmt.js (docs/architecture.md §14, Phase 3 exit criteria).
+# Written from the format's design, not from Veritas output.
+# - Every fact the spec asserts as observed must match an entry under `facts` (precision; the target is >= 95%).
+# - Entries the spec doesn't assert are reported as missed (recall).
+# - Nothing under `never_observed` may appear in an observed claim.
+# - Each entry under `limitations` must be reported.
+version: 1
+subject: dist/lexfmt.js
+facts:
+  # Public API
+  - { kind: export, name: readLex, type: function, params: 1 }
+  - { kind: export, name: writeLex, type: function, params: 1 }
+  - { kind: export, name: LexError, type: class, extends: Error }
+  - { kind: export, name: SectionType, type: object, members: { META: 1, TEXT: 2, BLOB: 3, LICENSE: 127 } }
+  - { kind: export, name: HeaderFlags, type: object, members: { READONLY: 1, TEMPLATE: 2 } }
+  # Reading
+  - { kind: byte-compare, function: readLex, bytes: 4C455801 }                      # the magic
+  - { kind: read, function: readLex, type: u16, endian: le, offset: 4 }             # version
+  - { kind: read, function: readLex, type: u16, endian: le, offset: 6 }             # header flags
+  - { kind: read, function: readLex, type: u32, endian: le, offset: 8 }             # section count
+  - { kind: read, function: readLex, type: u32, endian: le, from_end: 4 }           # CRC-32 trailer
+  - { kind: record-read, function: readLex, via: self,
+      fields: [[0, u8, null], [1, u8, null], [2, u16, le], [4, u32, le]] }          # section header
+  - { kind: dispatch, function: readLex, values: [1, 2, 3, 127], default_error: LEX_SECTION_TYPE }
+  - { kind: errors, function: readLex, ctor: LexError,
+      codes: [LEX_BAD_MAGIC, LEX_CHECKSUM, LEX_RESERVED, LEX_SECTION_TYPE, LEX_TRAILING, LEX_TRUNCATED, LEX_VERSION] }
+  - { kind: errors, function: readLex, ctor: TypeError, codes: [] }
+  # Writing
+  - { kind: byte-write, function: writeLex, bytes: 4C455801, offset: 0 }
+  - { kind: write, function: writeLex, type: u16, endian: le, offset: 4 }
+  - { kind: write, function: writeLex, type: u16, endian: le, offset: 6 }
+  - { kind: write, function: writeLex, type: u32, endian: le, offset: 8 }
+  - { kind: record-write, function: writeLex, via: self, fields: [[0, u32, le]] }   # the trailer, after the sections
+  - { kind: record-write, function: writeLex, via: helper,
+      fields: [[0, u8, null], [1, u8, null], [2, u16, le], [4, u32, le]] }          # each section header
+  - { kind: dispatch, function: writeLex, values: [1, 2, 3], default_error: LEX_SECTION_TYPE }
+  - { kind: errors, function: writeLex, ctor: LexError, codes: [LEX_SECTION_TYPE] }
+  # Shared
+  - { kind: algorithm, functions: [readLex, writeLex], constant: "0xEDB88320", name: "CRC-32 (reflected IEEE 802.3 polynomial)" }
+limitations:   # the excluded function itself is named only dirty-side, never in a claim
+  - { kind: excluded, value: 127, reached_from: [readLex] }
+never_observed:
+  - { what: "a meaning for header flag bit 0x04", pattern: '(?i)(bit\s*0x0?4|0x0?4\s*(bit|flag)|flag\s*0x0?4)' }
+  - { what: "what a section of type 0x7F contains", pattern: '(?i)0x7f[^.]*\b(contains?|holds?|stores?|means?|key|serial)\b' }

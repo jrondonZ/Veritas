@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "call": "readLex",
+  "vectors": [
+    {
+      "id": "minimal",
+      "sample": "samples/minimal.lex",
+      "expect": {
+        "ok": true,
+        "value": {
+          "version": 1,
+          "flags": 0,
+          "readonly": false,
+          "template": false,
+          "sections": []
+        }
+      }
+    },
+    {
+      "id": "meta-text",
+      "sample": "samples/meta-text.lex",
+      "expect": {
+        "ok": true,
+        "value": {
+          "version": 1,
+          "flags": 0,
+          "readonly": false,
+          "template": false,
+          "sections": [
+            {
+              "type": 1,
+              "flags": 0,
+              "value": {
+                "title": "Quarterly plan",
+                "author": "lab"
+              }
+            },
+            {
+              "type": 2,
+              "flags": 0,
+              "value": "Hello, lex."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "readonly-blob",
+      "sample": "samples/readonly-blob.lex",
+      "expect": {
+        "ok": true,
+        "value": {
+          "version": 1,
+          "flags": 1,
+          "readonly": true,
+          "template": false,
+          "sections": [
+            {
+              "type": 3,
+              "flags": 1,
+              "value": [
+                0,
+                1,
+                2,
+                250,
+                255
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "template-flag-04",
+      "sample": "samples/template-flag-04.lex",
+      "expect": {
+        "ok": true,
+        "value": {
+          "version": 1,
+          "flags": 6,
+          "readonly": false,
+          "template": true,
+          "sections": [
+            {
+              "type": 2,
+              "flags": 0,
+              "value": "bit 0x04 rides along"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bad-magic",
+      "sample": "samples/bad-magic.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_BAD_MAGIC"
+      }
+    },
+    {
+      "id": "bad-version",
+      "sample": "samples/bad-version.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_VERSION"
+      }
+    },
+    {
+      "id": "bad-checksum",
+      "sample": "samples/bad-checksum.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_CHECKSUM"
+      }
+    },
+    {
+      "id": "short",
+      "sample": "samples/short.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_TRUNCATED"
+      }
+    },
+    {
+      "id": "truncated-payload",
+      "sample": "samples/truncated-payload.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_TRUNCATED"
+      }
+    },
+    {
+      "id": "unknown-type",
+      "sample": "samples/unknown-type.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_SECTION_TYPE"
+      }
+    },
+    {
+      "id": "reserved-bits",
+      "sample": "samples/reserved-bits.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_RESERVED"
+      }
+    },
+    {
+      "id": "trailing-data",
+      "sample": "samples/trailing-data.lex",
+      "expect": {
+        "ok": false,
+        "error": "LEX_TRAILING"
+      }
+    }
+  ]
+}

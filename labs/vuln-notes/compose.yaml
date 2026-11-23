@@ -1,0 +1,38 @@
+# INTENTIONALLY VULNERABLE LAB. Internal network only: no internet access, not published on the host.
+# Start it with `veritas lab up vuln-notes`, which supplies the identity secrets.
+name: vrt-lab-vuln-notes
+services:
+  vuln-notes:
+    build: ./app
+    image: veritas/lab-vuln-notes:0.0.1
+    hostname: vuln-notes
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      VRT_ALICE: ${VRT_ALICE:?start the lab with veritas lab up}
+      VRT_BOB: ${VRT_BOB:?start the lab with veritas lab up}
+    volumes:
+      - notes-data:/data
+      - query-log:/logs
+    tmpfs:
+      - /tmp:size=16m
+    networks:
+      lab:
+        ipv4_address: 172.30.0.4
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+networks:
+  lab:
+    name: vrt-lab-vuln-notes
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+volumes:
+  notes-data: {}
+  query-log:   # the app's SQL statement and activity logs; the Veritas sensors mount it read-only
+    name: vrt-lab-vuln-notes-query-log

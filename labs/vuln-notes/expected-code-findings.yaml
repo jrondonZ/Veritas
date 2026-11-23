@@ -1,0 +1,38 @@
+# Ground truth for the static security rules over the lab's own source and its recorded browsing session
+# (veritas.charter.yaml). Every candidate must be listed under `expected` (precision), every expected item should be
+# found (recall), and no candidate may land under `never`, the correct look-alikes. For the recording, `function`
+# is the endpoint or the origin a candidate is about. `dynamic_only` items are proven by Assess on the running
+# lab; static rules make no claim about them.
+version: 1
+expected:
+  - { id: L2, rule: html-from-input, file: app/server.mjs, function: handlers.search }
+  - { id: L3, rule: cookie-attributes, file: app/server.mjs, function: handlers.login }
+  - { id: L4, rule: stack-in-response, file: app/server.mjs, function: handlers.createNote }
+  - { id: L7, rule: sql-from-input, file: app/server.mjs, function: handlers.searchNotes }
+  - { id: L9, rule: redirect-from-input, file: app/server.mjs, function: handlers.go }
+  - { id: L11, rule: path-from-input, file: app/server.mjs, function: handlers.readExport }
+  - { id: L12, rule: shell-command, file: app/server.mjs, function: handlers.thumbnail }
+  - { id: L13, rule: request-from-input, file: app/server.mjs, function: handlers.preview }
+  # The same L3 and L4, seen in the recorded responses, and the headers no page sends (part of L2).
+  - { id: L3, rule: cookie-attributes, file: recordings/browse.har, function: POST /api/login }
+  - { id: L4, rule: stack-in-response, file: recordings/browse.har, function: POST /api/notes }
+  - { id: L2-csp, rule: csp-missing, file: recordings/browse.har, function: "http://vuln-notes:8080" }
+  - { id: framing, rule: framing-unprotected, file: recordings/browse.har, function: "http://vuln-notes:8080" }
+  - { id: H5, rule: nosniff-missing, file: recordings/browse.har, function: "http://vuln-notes:8080" }
+  - { id: H6, rule: version-disclosure, file: recordings/browse.har, function: "http://vuln-notes:8080" }
+never:
+  - { id: N2, file: app/server.mjs, function: handlers.search2 }        # HTML-encodes its output
+  - { id: N3, file: app/server.mjs, function: handlers.createNoteV2 }   # sends a generic error
+  - { id: N4, file: app/server.mjs, function: handlers.searchNotesV2 }  # binds its parameters
+  - { id: N5, file: app/server.mjs, function: handlers.go2 }            # redirects only to fixed destinations
+  - { id: N9, file: app/server.mjs, function: handlers.readExportV2 }   # keeps only the name's last segment
+  - { id: N10, file: app/server.mjs, function: handlers.thumbnailV2 }   # no shell, the name is one argument
+  - { id: N11, file: app/server.mjs, function: handlers.previewV2 }     # fetches only fixed feed URLs
+  - { id: logout, file: app/server.mjs, function: handlers.logout }     # clearing a cookie isn't a weak cookie
+  - { id: logout, file: recordings/browse.har, function: GET /logout }  # the recorded clearing cookie
+  - { id: cdn, file: recordings/browse.har, function: "https://cdn.example.net:443" }  # another origin isn't judged
+dynamic_only:
+  - { id: L1, why: "authorization depends on who owns which row at run time" }
+  - { id: L5, why: "which fields a write accepts depends on the data store" }
+  - { id: L6, why: "CSRF depends on cookie and request handling together" }
+  - { id: L8, why: "the error body depends on the input at run time" }

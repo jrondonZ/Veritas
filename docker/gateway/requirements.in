@@ -1,0 +1,4 @@
+# Exact pins for the gateway image. After changing them, regenerate the hashed lock:
+#   python scripts/lock_gateway_requirements.py
+pydantic==2.14.3
+h11==0.16.0

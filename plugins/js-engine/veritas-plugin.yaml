@@ -1,0 +1,18 @@
+apiVersion: veritas/plugin/v1alpha1
+id: veritas.engine.js
+version: 0.0.1
+kind: engine
+runtime:
+  image: veritas/js-engine:0.0.1   # built locally; ID recorded in .veritas/veritas.lock
+  command: []
+protocol: vpp/1
+operations:
+  - name: analyze
+    impact: observe
+    output: [program-model]
+capabilities:
+  network: none
+  identities: none
+  filesystem: { work: tmpfs, inputs: ro }
+resources: { cpu: "1", memory: 512Mi, pids: 32, timeout: 300s, output_max: 16Mi }
+determinism: deterministic

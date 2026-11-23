@@ -1,0 +1,4 @@
+# The build context is docker/model-server; only these files enter the image.
+*
+!relay.sh
+!install.sh

@@ -1,0 +1,36 @@
+# Ground truth for the static security rules over the packed app (veritas.charter.yaml).
+# Every candidate must be listed under `expected` (precision), every expected item should be found (recall), and no
+# candidate may land under `never`, the correct look-alikes. Files inside the archive are named `<archive>!/<path>`;
+# a finding about a whole page has no function.
+version: 1
+expected:
+  - { id: D1, rule: electron-node-integration, file: dist/app.asar!/main.js, function: createMainWindow }
+  - { id: D2, rule: electron-context-isolation, file: dist/app.asar!/main.js, function: createMainWindow }
+  - { id: D3, rule: electron-sandbox, file: dist/app.asar!/main.js, function: createPreviewWindow }
+  - { id: D4, rule: electron-web-security, file: dist/app.asar!/main.js, function: createPreviewWindow }
+  - { id: D5, rule: open-external, file: dist/app.asar!/main.js, function: registerOpenLink }
+  - { id: D6, rule: path-from-input, file: dist/app.asar!/main.js, function: registerExport }
+  - { id: D7, rule: shell-command, file: dist/app.asar!/main.js, function: registerReveal }
+  - { id: D8, rule: dom-html, file: dist/app.asar!/renderer.js, function: renderList }
+  - { id: D9, rule: electron-page-csp, file: dist/app.asar!/index.html, function: null }
+  - { id: D10, rule: electron-node-integration, file: dist/app.asar!/viewer.html, function: null }
+never:
+  - { id: about-window, file: dist/app.asar!/main.js, function: createAboutWindow }
+  - { id: help-link, file: dist/app.asar!/main.js, function: registerOpenHelp }
+  - { id: export-slot, file: dist/app.asar!/main.js, function: registerExportSlot }
+  - { id: reveal-safe, file: dist/app.asar!/main.js, function: registerRevealSafe }
+  - { id: list-safe, file: dist/app.asar!/renderer.js, function: renderListSafe }
+  - { id: about-page, file: dist/app.asar!/about.html, function: null }
+  - { id: dependency-code, file: dist/app.asar!/node_modules/lab-markdown/index.js, function: null }
+dependencies:  # the inventory, sorted by name then version
+  - { name: "@lab/storage", version: "0.3.1", path: node_modules/@lab/storage/package.json }
+  - { name: lab-markdown, version: "0.9.4", path: node_modules/@lab/storage/node_modules/lab-markdown/package.json }
+  - { name: lab-markdown, version: "1.2.0", path: node_modules/lab-markdown/package.json }
+# Also expected once advisories/lab-osv.json is imported (`veritas advisories import`). It matches the nested
+# lab-markdown 0.9.4 only: VRT-LAB-0001 is fixed in 1.0.0, VRT-LAB-0002 covers @lab/storage 0.4.x, VRT-LAB-0003 is
+# withdrawn, and VRT-LAB-0004 is for another ecosystem.
+with_advisories:
+  - id: D11
+    rule: vulnerable-dependency
+    file: dist/app.asar!/node_modules/@lab/storage/node_modules/lab-markdown/package.json
+    function: lab-markdown@0.9.4

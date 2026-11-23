@@ -1,0 +1,51 @@
+[
+  {
+    "schema_version": "1.6.0",
+    "id": "VRT-LAB-0001",
+    "modified": "2026-11-01T00:00:00Z",
+    "published": "2026-11-01T00:00:00Z",
+    "summary": "Lab-only advisory: lab-markdown before 1.0.0 renders raw HTML from note text",
+    "details": "A stand-in advisory for the notes-desktop lab. lab-markdown is a lab-only package name.",
+    "affected": [
+      {
+        "package": { "ecosystem": "npm", "name": "lab-markdown" },
+        "ranges": [{ "type": "SEMVER", "events": [{ "introduced": "0" }, { "fixed": "1.0.0" }] }]
+      }
+    ],
+    "severity": [{ "type": "CVSS_V3", "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N" }],
+    "database_specific": { "severity": "MODERATE", "cwe_ids": ["CWE-79"] }
+  },
+  {
+    "schema_version": "1.6.0",
+    "id": "VRT-LAB-0002",
+    "modified": "2026-11-01T00:00:00Z",
+    "summary": "Lab-only advisory: @lab/storage 0.4.0 through 0.4.2 writes notes that any local user can read",
+    "affected": [
+      {
+        "package": { "ecosystem": "npm", "name": "@lab/storage" },
+        "ranges": [{ "type": "SEMVER", "events": [{ "introduced": "0.4.0" }, { "fixed": "0.4.3" }] }]
+      }
+    ],
+    "database_specific": { "severity": "LOW", "cwe_ids": ["CWE-276"] }
+  },
+  {
+    "schema_version": "1.6.0",
+    "id": "VRT-LAB-0003",
+    "modified": "2026-11-02T00:00:00Z",
+    "withdrawn": "2026-11-02T00:00:00Z",
+    "summary": "Lab-only advisory, withdrawn: lab-markdown 1.2.0 was reported in error",
+    "affected": [{ "package": { "ecosystem": "npm", "name": "lab-markdown" }, "versions": ["1.2.0"] }]
+  },
+  {
+    "schema_version": "1.6.0",
+    "id": "VRT-LAB-0004",
+    "modified": "2026-11-01T00:00:00Z",
+    "summary": "Lab-only advisory for another ecosystem, which an npm import skips",
+    "affected": [
+      {
+        "package": { "ecosystem": "PyPI", "name": "lab-markdown" },
+        "ranges": [{ "type": "ECOSYSTEM", "events": [{ "introduced": "0" }] }]
+      }
+    ]
+  }
+]

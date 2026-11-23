@@ -1,0 +1,16 @@
+# Ground truth for the binary engine's .NET rules over the compiled tool (veritas.charter.yaml). Every candidate must
+# be listed under `expected`, every listed item must be found, and no candidate may land in a look-alike under
+# `never`. Functions are named Namespace.Type::Method.
+version: 1
+expected:
+  - { id: D1, rule: sql-concatenation, file: dist/NotesCli.exe, function: "NotesCli.Store::Search" }
+  - { id: D2, rule: insecure-deserialization, file: dist/NotesCli.exe, function: "NotesCli.Store::Load" }
+  - { id: D3, rule: weak-hash, file: dist/NotesCli.exe, function: "NotesCli.Store::Fingerprint" }
+  - { id: D4, rule: hardcoded-secret, file: dist/NotesCli.exe, function: "NotesCli.Store::Sign" }
+  - { id: D5, rule: shell-command, file: dist/NotesCli.exe, function: "NotesCli.Store::Open" }
+never:
+  - { id: search-safe, file: dist/NotesCli.exe, function: "NotesCli.Store::SearchSafe" }
+  - { id: load-safe, file: dist/NotesCli.exe, function: "NotesCli.Store::LoadSafe" }
+  - { id: checksum, file: dist/NotesCli.exe, function: "NotesCli.Store::Checksum" }
+  - { id: open-safe, file: dist/NotesCli.exe, function: "NotesCli.Store::OpenSafe" }
+  - { id: whole-file, file: dist/NotesCli.exe, function: null }   # csc sets ASLR and DEP, so no header finding

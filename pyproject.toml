@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "veritas"
+dynamic = ["version"]
+description = "Authorized application security validation and evidence-based behavior analysis"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Private :: Do Not Upload",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pydantic>=2.7,<3",
+    "PyYAML>=6.0",
+    "typer>=0.12",
+    "h11>=0.14,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-PyYAML",
+]
+
+[project.scripts]
+veritas = "veritas.cli:app"
+
+[tool.setuptools.dynamic]
+version = { attr = "veritas.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+veritas = ["py.typed", "ui/static/*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+# `-p no:cacheprovider`: no .pytest_cache in the project; the suite is fast enough without --lf.
+addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib", "-p", "no:cacheprovider", "-m", "not docker"]
+markers = ["docker: needs a running Docker engine; run with `pytest -m docker`"]
+xfail_strict = true
+filterwarnings = ["error"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests"]
+cache-dir = "~/.cache/ruff"  # keep tool caches out of the project folder
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "S", "SIM", "C4", "PT", "RUF", "A"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S104", "S105", "S106", "S108", "S603", "S607"]  # asserts, fixture values, subprocess
+"plugins/selftest/plugin.py" = ["S104"]  # the echo target binds 0.0.0.0 inside its container
+
+[tool.ruff.lint.isort]
+known-first-party = ["veritas"]
+
+[tool.mypy]
+python_version = "3.11"
+platform = "linux"  # the gateway and sandboxes run on Linux; keeps results identical on every host
+files = ["src/veritas"]
+cache_dir = "~/.cache/mypy/veritas"  # keep tool caches out of the project folder
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]

@@ -1,0 +1,8 @@
+# Files are copied into Linux containers; keep LF endings on every platform.
+* text=auto eol=lf
+*.png binary
+*.db binary
+*.lex binary
+*.asar binary
+*.exe binary
+labs/native-samples/dist/** binary

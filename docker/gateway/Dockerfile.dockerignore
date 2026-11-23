@@ -1,0 +1,7 @@
+# Build-context allowlist for docker/gateway/Dockerfile (the context is the repository root).
+*
+!docker/gateway/requirements.txt
+!src/veritas/__init__.py
+!src/veritas/core/**
+!src/veritas/gateway/**
+**/__pycache__

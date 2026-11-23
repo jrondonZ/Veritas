@@ -1,0 +1,21 @@
+apiVersion: veritas/plugin/v1alpha1
+id: veritas.sensor.activity-log
+version: 0.0.1
+kind: sensor
+runtime:
+  image: veritas/activity-log-sensor:0.0.1   # built locally; ID recorded in .veritas/veritas.lock
+  command: []
+protocol: vpp/1
+operations:
+  - name: mark
+    impact: observe
+    output: [log-offset]
+  - name: collect
+    impact: observe
+    output: [activity-log-entries]
+capabilities:
+  network: none
+  identities: none
+  filesystem: { work: tmpfs, inputs: ro }
+resources: { cpu: "0.5", memory: 128Mi, pids: 32, timeout: 60s, output_max: 4Mi }
+determinism: deterministic

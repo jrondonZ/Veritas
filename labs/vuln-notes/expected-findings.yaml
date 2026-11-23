@@ -1,0 +1,124 @@
+# Ground truth for the vuln-notes lab (docs/architecture.md §13).
+# Each item names the check and route that must produce it. `expected` is the status of an
+# interactive run with approvals granted; `expected_ci` applies when nobody can approve (--ci).
+# tests/integration/test_assess_lab.py fails on any deviation, in either direction.
+version: 1
+lab: vuln-notes
+planted:
+  - id: L1
+    behavior: GET /api/notes/{id} has no owner check
+    match: { check: veritas.check.object-authz, route: "GET /api/notes/{id}" }
+    cwe: [CWE-639]
+    wstg: [WSTG-ATHZ-04]
+    expected: confirmed
+    implemented: true
+  - id: L2
+    behavior: /search reflects q without encoding
+    match: { check: veritas.check.reflected-html, route: "GET /search" }
+    cwe: [CWE-79]
+    wstg: [WSTG-INPV-01]
+    expected: confirmed
+    implemented: true
+  - id: L3
+    behavior: session cookie lacks HttpOnly and SameSite
+    match: { check: veritas.check.cookie-attributes, route: "POST /api/login" }
+    cwe: [CWE-1004, CWE-1275]
+    wstg: [WSTG-SESS-02]
+    expected: confirmed
+    implemented: true
+  - id: L4
+    behavior: stack trace on malformed JSON
+    match: { check: veritas.check.error-disclosure, route: "POST /api/notes" }
+    cwe: [CWE-209]
+    wstg: [WSTG-ERRH-01]
+    expected: confirmed
+    implemented: true
+  - id: L5
+    behavior: PUT /api/profile accepts a client-supplied role field
+    match: { check: veritas.check.mass-assignment, route: "PUT /api/profile" }
+    cwe: [CWE-915]
+    wstg: []
+    expected: confirmed       # after the operator approves the sensitive probe
+    expected_ci: blocked      # nobody can approve in --ci
+    implemented: true
+  - id: L6
+    behavior: POST /api/notes has no CSRF defense
+    match: { check: veritas.check.csrf, route: "POST /api/notes" }
+    cwe: [CWE-352]
+    wstg: [WSTG-SESS-05]
+    expected: confirmed
+    implemented: true
+  - id: L7
+    behavior: GET /api/search concatenates q into the SQL statement text
+    match: { check: veritas.check.sql-string-built, route: "GET /api/search" }
+    cwe: [CWE-89]
+    wstg: [WSTG-INPV-05]
+    expected: confirmed       # the query-log sensor sees the canary inside the SQL text
+    implemented: true
+  - id: L8
+    behavior: POST /api/import returns 500 with input-dependent bodies and no error signature
+    match: { check: veritas.check.error-disclosure, route: "POST /api/import" }
+    cwe: []
+    wstg: [WSTG-ERRH-01]
+    expected: inconclusive
+    implemented: true
+  - id: L9
+    behavior: GET /go redirects to whatever URL next names, including other sites
+    match: { check: veritas.check.open-redirect, route: "GET /go" }
+    cwe: [CWE-601]
+    wstg: [WSTG-CLNT-04]
+    expected: confirmed       # the Location header names the probe's .invalid host; nothing follows it
+    implemented: true
+  - id: L10
+    behavior: GET /api/profile echoes any Origin back with credentials allowed
+    match: { check: veritas.check.cors, route: "GET /api/profile" }
+    cwe: [CWE-942]
+    wstg: [WSTG-CLNT-07]
+    expected: confirmed
+    implemented: true
+  - id: L11
+    behavior: GET /api/export joins the name into a file path, slashes and all
+    match: { check: veritas.check.path-from-input, route: "GET /api/export" }
+    cwe: [CWE-22]
+    wstg: [WSTG-ATHZ-01]
+    expected: confirmed       # the activity log shows the canary's slash kept in the path the app opened
+    implemented: true
+  - id: L12
+    behavior: GET /api/thumbnail pastes the name into a shell command line
+    match: { check: veritas.check.command-from-input, route: "GET /api/thumbnail" }
+    cwe: [CWE-78]
+    wstg: [WSTG-INPV-12]
+    expected: confirmed       # the lab's shell is /bin/false, so the logged command never runs
+    implemented: true
+  - id: L13
+    behavior: GET /api/preview requests whatever URL it's given
+    match: { check: veritas.check.request-from-input, route: "GET /api/preview" }
+    cwe: [CWE-918]
+    wstg: [WSTG-INPV-19]
+    expected: confirmed       # the request names the canary's .invalid host and is aborted before it's sent
+    implemented: true
+  # Missing response headers, judged passively from the pages recon fetched.
+  - { id: H1, behavior: the front page sends no CSP, match: { check: veritas.check.csp, route: "GET /" },
+      cwe: [CWE-693], wstg: [WSTG-CONF-12], expected: confirmed, implemented: true }
+  - { id: H2, behavior: the search page sends no CSP, match: { check: veritas.check.csp, route: "GET /search" },
+      cwe: [CWE-693], wstg: [WSTG-CONF-12], expected: confirmed, implemented: true }
+  - { id: H3, behavior: the front page can be framed, match: { check: veritas.check.framing, route: "GET /" },
+      cwe: [CWE-1021], wstg: [WSTG-CLNT-09], expected: confirmed, implemented: true }
+  - { id: H4, behavior: the search page can be framed, match: { check: veritas.check.framing, route: "GET /search" },
+      cwe: [CWE-1021], wstg: [WSTG-CLNT-09], expected: confirmed, implemented: true }
+  - { id: H5, behavior: no response sends nosniff, match: { check: veritas.check.content-type-options, route: "GET /" },
+      cwe: [CWE-693], wstg: [WSTG-CONF-14], expected: confirmed, implemented: true }
+  - { id: H6, behavior: every response sends X-Powered-By, match: { check: veritas.check.server-banner, route: "GET /" },
+      cwe: [CWE-497], wstg: [WSTG-INFO-02], expected: confirmed, implemented: true }
+negative_controls:   # must never be confirmed
+  - { id: N1, match: { check: veritas.check.object-authz, route: "GET /api/v2/notes/{id}" }, expected: rejected }
+  - { id: N2, match: { check: veritas.check.reflected-html, route: "GET /search2" }, expected: rejected }
+  - { id: N3, match: { check: veritas.check.error-disclosure, route: "POST /api/v2/notes" }, expected: rejected }
+  - { id: N4, match: { check: veritas.check.sql-string-built, route: "GET /api/v2/search" }, expected: rejected }
+  - { id: N5, match: { check: veritas.check.open-redirect, route: "GET /go2" }, expected: rejected }
+  - { id: N6, match: { check: veritas.check.cors, route: "GET /api/notes" }, expected: rejected }
+  - { id: N7, match: { check: veritas.check.csp, route: "GET /search2" }, expected: rejected }
+  - { id: N8, match: { check: veritas.check.framing, route: "GET /search2" }, expected: rejected }
+  - { id: N9, match: { check: veritas.check.path-from-input, route: "GET /api/v2/export" }, expected: rejected }
+  - { id: N10, match: { check: veritas.check.command-from-input, route: "GET /api/v2/thumbnail" }, expected: rejected }
+  - { id: N11, match: { check: veritas.check.request-from-input, route: "GET /api/v2/preview" }, expected: rejected }
